@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GiftDgift - The Modern Way to Celebrate</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, where, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables for Firebase access
+        window.firebase = {
+            initializeApp,
+            getAuth,
+            signInWithCustomToken,
+            signInAnonymously,
+            onAuthStateChanged,
+            GoogleAuthProvider,
+            signInWithPopup,
+            signOut,
+            getFirestore,
+            collection,
+            addDoc,
+            onSnapshot,
+            serverTimestamp,
+            query,
+            where,
+            getDocs,
+            doc,
+            setDoc,
+            deleteDoc
+        };
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fafc;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            background-image: linear-gradient(to right, #f97316, #ef4444);
+        }
+        .btn-gradient {
+            background-image: linear-gradient(to right, #f97316, #ef4444);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(249, 115, 22, 0.2);
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #f97316;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .fade-in-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+    <!-- Navigation Bar -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="#" class="flex items-center space-x-2">
+                <img src="http://googleusercontent.com/file_content/5" alt="GiftDgift Logo" class="h-10 w-10">
+                <span class="text-2xl font-bold text-gray-900 tracking-tight">GiftDgift</span>
+            </a>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#home" class="nav-link text-gray-600 hover:text-orange-500 transition duration-300">Home</a>
+                <a href="#pandal-collection" class="nav-link text-gray-600 hover:text-orange-500 transition duration-300">Pandal Collection</a>
+                <a href="#my-events" class="nav-link text-gray-600 hover:text-orange-500 transition duration-300 hidden" id="my-events-link">My Events</a>
+                <a href="#super-admin" class="nav-link text-gray-600 hover:text-orange-500 transition duration-300 hidden" id="super-admin-link">Super Admin</a>
+                <a href="#create-event" class="nav-link btn-gradient text-white px-6 py-2 rounded-full font-semibold shadow-md">Create Event</a>
+                <a href="#" id="auth-link" class="text-gray-600 hover:text-orange-500 transition duration-300">Login</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-orange-500 transition duration-300 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </nav>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white px-4 py-2 border-t border-gray-200">
+            <a href="#home" class="nav-link block py-2 text-gray-600 hover:text-orange-500 transition duration-300">Home</a>
+            <a href="#pandal-collection" class="nav-link block py-2 text-gray-600 hover:text-orange-500 transition duration-300">Pandal Collection</a>
+            <a href="#my-events" class="nav-link block py-2 text-gray-600 hover:text-orange-500 transition duration-300 hidden" id="mobile-my-events-link">My Events</a>
+            <a href="#super-admin" class="nav-link block py-2 text-gray-600 hover:text-orange-500 transition duration-300 hidden" id="mobile-super-admin-link">Super Admin</a>
+            <a href="#create-event" class="nav-link block mt-4 text-center btn-gradient text-white px-6 py-2 rounded-full font-semibold">Create Event</a>
+            <a href="#" id="mobile-auth-link" class="block py-2 text-gray-600 hover:text-orange-500 transition duration-300">Login</a>
+        </div>
+    </header>
+
+    <main id="app-container">
+        <!-- Main Content Views will be rendered here dynamically -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2024 GiftDgift. All rights reserved.</p>
+            <div class="mt-4 flex justify-center space-x-6">
+                <a href="#" class="hover:text-orange-400 transition duration-300">Terms of Service</a>
+                <a href="#" class="hover:text-orange-400 transition duration-300">Privacy Policy</a>
+                <a href="#" class="hover:text-orange-400 transition duration-300">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const appContainer = document.getElementById('app-container');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            // Function to handle API calls with exponential backoff
+            async function callGeminiApi(prompt) {
+                let retryCount = 0;
+                const maxRetries = 5;
+                const baseDelay = 1000;
+
+                while (retryCount < maxRetries) {
+                    try {
+                        let chatHistory = [];
+                        chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                        const payload = { contents: chatHistory };
+                        const apiKey = "";
+                        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        const result = await response.json();
+                        if (result.candidates && result.candidates.length > 0 &&
+                            result.candidates[0].content && result.candidates[0].content.parts &&
+                            result.candidates[0].content.parts.length > 0) {
+                            return result.candidates[0].content.parts[0].text;
+                        } else {
+                            throw new Error('Invalid API response structure');
+                        }
+                    } catch (error) {
+                        retryCount++;
+                        if (retryCount >= maxRetries) {
+                            console.error('API call failed after multiple retries:', error);
+                            throw error;
+                        }
+                        const delay = baseDelay * Math.pow(2, retryCount);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    }
+                }
+            }
+            
+            const simulatePayment = (amount) => {
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        if (Math.random() > 0.1) {
+                            resolve({ success: true, transactionId: `txn_${Date.now()}` });
+                        } else {
+                            reject({ success: false, message: 'Payment failed due to an error.' });
+                        }
+                    }, 2000);
+                });
+            };
+
+            const setupHomePage = () => {
+                const generateSantaBtn = document.getElementById('generate-santa-btn');
+                const santaNamesInput = document.getElementById('santa-names');
+                const giftPreferencesInput = document.getElementById('gift-preferences');
+                const santaOutputDiv = document.getElementById('santa-output');
+                const santaResultsDiv = document.getElementById('santa-results');
+                const santaBtnText = document.getElementById('santa-btn-text');
+                const santaLoader = document.getElementById('santa-loader');
+                if (generateSantaBtn) {
+                    generateSantaBtn.addEventListener('click', async () => {
+                        const names = santaNamesInput.value.split(',').map(name => name.trim()).filter(name => name);
+                        if (names.length < 2) {
+                            alert('Please enter at least two participant names.');
+                            return;
+                        }
+                        santaBtnText.classList.add('hidden');
+                        santaLoader.classList.remove('hidden');
+                        generateSantaBtn.disabled = true;
+                        santaOutputDiv.textContent = '';
+                        santaResultsDiv.classList.add('hidden');
+                        try {
+                            let prompt = `Act as a Secret Santa generator. Given the following participants: ${names.join(', ')}.`;
+                            if (giftPreferencesInput.value) {
+                                prompt += `\nHere are their gift preferences: ${giftPreferencesInput.value}.`;
+                            }
+                            prompt += `\nAssign a unique Secret Santa for each person, ensuring no one is their own Secret Santa. Provide a list of assignments and a brief, personalized gift idea for each recipient based on the preferences. Format the output clearly.`;
+                            const assignments = await callGeminiApi(prompt);
+                            santaOutputDiv.textContent = assignments.replace(/\*/g, '').trim();
+                            santaResultsDiv.classList.remove('hidden');
+                        } catch (error) {
+                            alert('Failed to generate Secret Santa assignments. Please try again.');
+                        } finally {
+                            santaBtnText.classList.remove('hidden');
+                            santaLoader.classList.add('hidden');
+                            generateSantaBtn.disabled = false;
+                        }
+                    });
+                }
+                // Observer for the scrolling quote
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
+                const quote = document.querySelector('.fade-in-scroll');
+                if (quote) {
+                    observer.observe(quote);
+                }
+            };
+            
+            const setupCreateEventPage = () => {
+                const firebase = window.firebase;
+                const auth = firebase.getAuth(app);
+                const db = firebase.getFirestore(app);
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                const createEventFormContainer = document.getElementById('create-event-form-container');
+                const createEventLoginPrompt = document.getElementById('create-event-login-prompt');
+                const createEventLoginBtn = document.getElementById('create-event-login-btn');
+                
+                const showCreateEventForm = (user) => {
+                    if (user) {
+                        if (createEventLoginPrompt) createEventLoginPrompt.classList.add('hidden');
+                        if (createEventFormContainer) createEventFormContainer.classList.remove('hidden');
+                    } else {
+                        if (createEventLoginPrompt) createEventLoginPrompt.classList.remove('hidden');
+                        if (createEventFormContainer) createEventFormContainer.classList.add('hidden');
+                    }
+                };
+
+                firebase.onAuthStateChanged(auth, showCreateEventForm);
+                if (createEventLoginBtn) createEventLoginBtn.addEventListener('click', () => {
+                    const provider = new firebase.GoogleAuthProvider();
+                    firebase.signInWithPopup(auth, provider);
+                });
+                
+                const generateThemeBtn = document.getElementById('generate-theme-btn');
+                const eventTypeInput = document.getElementById('event-type');
+                const eventThemeInput = document.getElementById('event-theme');
+                const themeBtnText = document.getElementById('theme-btn-text');
+                const themeLoader = document.getElementById('theme-loader');
+                if (generateThemeBtn) {
+                    generateThemeBtn.addEventListener('click', async () => {
+                        const eventType = eventTypeInput.value;
+                        if (!eventType) {
+                            alert('Please select an event type first.');
+                            return;
+                        }
+                        themeBtnText.classList.add('hidden');
+                        themeLoader.classList.remove('hidden');
+                        generateThemeBtn.disabled = true;
+                        try {
+                            const prompt = `Generate a creative and festive theme for a "${eventType}" event. The theme should be a short, memorable phrase. Just provide the theme name, nothing else.`;
+                            const theme = await callGeminiApi(prompt);
+                            eventThemeInput.value = theme.replace(/\*/g, '').trim();
+                        } catch (error) {
+                            alert('Failed to generate theme. Please try again.');
+                        } finally {
+                            themeBtnText.classList.remove('hidden');
+                            themeLoader.classList.add('hidden');
+                            generateThemeBtn.disabled = false;
+                        }
+                    });
+                }
+
+                const generateInviteBtn = document.getElementById('generate-invite-btn');
+                const eventNameInput = document.getElementById('event-name');
+                const eventDateInput = document.getElementById('event-date');
+                const eventLocationInput = document.getElementById('event-location');
+                const eventThemeInputForInvite = document.getElementById('event-theme');
+                const invitationTextInput = document.getElementById('invitation-text');
+                const toneSelect = document.getElementById('tone');
+                const inviteBtnText = document.getElementById('invite-btn-text');
+                const inviteLoader = document.getElementById('invite-loader');
+                if (generateInviteBtn) {
+                    generateInviteBtn.addEventListener('click', async () => {
+                        const eventName = eventNameInput.value;
+                        const eventDate = eventDateInput.value;
+                        const eventLocation = eventLocationInput.value;
+                        const eventTheme = eventThemeInputForInvite.value;
+                        const tone = toneSelect.value;
+                        if (!eventName || !eventDate || !eventLocation) {
+                            alert('Please fill out the event name, date, and location first.');
+                            return;
+                        }
+                        inviteBtnText.classList.add('hidden');
+                        inviteLoader.classList.remove('hidden');
+                        generateInviteBtn.disabled = true;
+                        try {
+                            let prompt = `Write a ${tone} invitation for an event with the following details:\n`;
+                            prompt += `Event Name: ${eventName}\n`;
+                            prompt += `Date: ${eventDate}\n`;
+                            prompt += `Location: ${eventLocation}\n`;
+                            if (eventTheme) {
+                                prompt += `Theme: ${eventTheme}\n`;
+                            }
+                            prompt += `Please be creative and include a polite request for guests to use GiftDgift for their monetary contributions, instead of traditional gifts.`;
+                            const invitation = await callGeminiApi(prompt);
+                            invitationTextInput.value = invitation.replace(/\*/g, '').trim();
+                        } catch (error) {
+                            alert('Failed to write invitation. Please try again.');
+                        } finally {
+                            inviteBtnText.classList.remove('hidden');
+                            inviteLoader.classList.add('hidden');
+                            generateInviteBtn.disabled = false;
+                        }
+                    });
+                }
+
+                const eventForm = document.getElementById('event-form');
+                if (eventForm) {
+                    eventForm.addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const user = auth.currentUser;
+                        if (!user) {
+                            alert('Please log in to create an event.');
+                            return;
+                        }
+                        const eventName = eventNameInput.value;
+                        const eventType = eventTypeInput.value;
+                        const eventDate = eventDateInput.value;
+                        const eventLocation = eventLocationInput.value;
+                        const eventTheme = eventThemeInput.value;
+                        const invitationText = invitationTextInput.value;
+                        const eventsCollectionRef = firebase.collection(db, `artifacts/${appId}/users/${user.uid}/events`);
+                        try {
+                            const newEventDocRef = await firebase.addDoc(eventsCollectionRef, {
+                                name: eventName,
+                                type: eventType,
+                                date: eventDate,
+                                location: eventLocation,
+                                theme: eventTheme,
+                                invitation: invitationText,
+                                status: 'open',
+                                createdAt: firebase.serverTimestamp(),
+                            });
+                            alert(`Event "${eventName}" created successfully! Your event ID is: ${newEventDocRef.id}. You can now share this event from the "My Events" page.`);
+                            eventForm.reset();
+                            window.location.hash = '#my-events';
+                        } catch (error) {
+                            console.error("Error creating event:", error);
+                            alert("Failed to create event. Please try again.");
+                        }
+                    });
+                }
+            };
+            
+            const setupMyEventsPage = () => {
+                const firebase = window.firebase;
+                const auth = firebase.getAuth(app);
+                const db = firebase.getFirestore(app);
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                const myEventsList = document.getElementById('my-events-list');
+                const loadingMyEvents = document.getElementById('loading-my-events');
+                const noEventsMessage = document.getElementById('no-events-message');
+                const myEventsLoginPrompt = document.getElementById('my-events-login-prompt');
+                const myEventsLoginBtn = document.getElementById('my-events-login-btn');
+                
+                const showMyEvents = async (user) => {
+                    if (user) {
+                        if (loadingMyEvents) loadingMyEvents.classList.remove('hidden');
+                        if (myEventsLoginPrompt) myEventsLoginPrompt.classList.add('hidden');
+                        if (noEventsMessage) noEventsMessage.classList.add('hidden');
+                        if (myEventsList) myEventsList.innerHTML = '';
+                        const eventsCollectionRef = firebase.collection(db, `artifacts/${appId}/users/${user.uid}/events`);
+                        try {
+                            const q = firebase.query(eventsCollectionRef);
+                            const querySnapshot = await firebase.getDocs(q);
+                            if (querySnapshot.empty) {
+                                if (noEventsMessage) noEventsMessage.classList.remove('hidden');
+                                if (loadingMyEvents) loadingMyEvents.classList.add('hidden');
+                            } else {
+                                querySnapshot.forEach(eventDoc => {
+                                    const eventData = eventDoc.data();
+                                    const eventId = eventDoc.id;
+                                    const shareableLink = `${window.location.origin}${window.location.pathname}#event?userId=${user.uid}&eventId=${eventId}`;
+                                    
+                                    const eventItem = document.createElement('div');
+                                    eventItem.className = 'bg-white p-6 rounded-3xl shadow-xl border border-gray-200';
+                                    eventItem.innerHTML = `
+                                        <h3 class="text-2xl font-bold text-gray-900">${eventData.name} <span class="text-sm font-normal text-gray-500">(${eventData.status})</span></h3>
+                                        <p class="text-gray-600 mt-2">Type: ${eventData.type} | Date: ${eventData.date} | Location: ${eventData.location}</p>
+                                        <div class="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                            <p class="text-sm font-semibold text-gray-700">Shareable Link:</p>
+                                            <a href="${shareableLink}" class="text-orange-500 hover:underline break-all">${shareableLink}</a>
+                                        </div>
+                                        <div class="mt-6 space-x-4">
+                                            <button data-event-id="${eventId}" class="view-admin-btn bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600">View Admin Panel</button>
+                                            <button data-event-id="${eventId}" class="close-event-btn bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600">Close Event</button>
+                                        </div>
+                                    `;
+                                    if(myEventsList) myEventsList.appendChild(eventItem);
+                                });
+                                if (loadingMyEvents) loadingMyEvents.classList.add('hidden');
+                                if (myEventsList) {
+                                  myEventsList.querySelectorAll('.view-admin-btn').forEach(button => {
+                                      button.addEventListener('click', (e) => {
+                                          const eventId = e.target.dataset.eventId;
+                                          window.location.hash = `#event?userId=${user.uid}&eventId=${eventId}&view=admin`;
+                                      });
+                                  });
+                                  myEventsList.querySelectorAll('.close-event-btn').forEach(button => {
+                                      button.addEventListener('click', async (e) => {
+                                          const eventId = e.target.dataset.eventId;
+                                          const eventDocRef = firebase.doc(db, `artifacts/${appId}/users/${user.uid}/events`, eventId);
+                                          try {
+                                              await firebase.setDoc(eventDocRef, { status: 'closed' }, { merge: true });
+                                              alert(`Event "${eventId}" has been closed.`);
+                                              setupMyEventsPage();
+                                          } catch (error) {
+                                              console.error("Error closing event:", error);
+                                              alert("Failed to close event. Please try again.");
+                                          }
+                                      });
+                                  });
+                                }
+                            }
+                        } catch (error) {
+                            console.error("Error fetching events:", error);
+                            alert("Failed to load your events.");
+                            if (loadingMyEvents) loadingMyEvents.classList.add('hidden');
+                        }
+                    } else {
+                        if (myEventsLoginPrompt) myEventsLoginPrompt.classList.remove('hidden');
+                        if (myEventsList) myEventsList.innerHTML = '';
+                        if (loadingMyEvents) loadingMyEvents.classList.add('hidden');
+                        if (noEventsMessage) noEventsMessage.classList.add('hidden');
+                    }
+                };
+
+                firebase.onAuthStateChanged(auth, showMyEvents);
+                if (myEventsLoginBtn) myEventsLoginBtn.addEventListener('click', () => {
+                    const provider = new firebase.GoogleAuthProvider();
+                    firebase.signInWithPopup(auth, provider);
+                });
+            };
+            
+            const setupSingleEventPage = (params) => {
+                const firebase = window.firebase;
+                const db = firebase.getFirestore(app);
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                const eventId = params.eventId;
+                const eventUserId = params.userId;
+                const isViewAdmin = params.view === 'admin';
+                const eventTitle = document.getElementById('event-title');
+                const eventMessage = document.getElementById('event-message');
+                const eventContent = document.getElementById('event-content');
+                const eventLoadingSpinner = document.getElementById('event-loading-spinner');
+                const eventClosedMessage = document.getElementById('event-closed-message');
+                const contributionFormContainer = document.getElementById('contribution-form-container');
+                const contributionForm = document.getElementById('contribution-form');
+                const eventAdminPanel = document.getElementById('event-admin-panel');
+                const eventAdminContributionsList = document.getElementById('event-admin-contributions-list');
+                const eventAdminTotalContributions = document.getElementById('event-total-contributions');
+                const giftIdeaButton = document.getElementById('generate-gift-idea-btn');
+
+                if (!eventId || !eventUserId) {
+                    if(eventTitle) eventTitle.textContent = 'Invalid Event Link';
+                    if(eventMessage) eventMessage.textContent = 'The event link is missing required information.';
+                    if(eventLoadingSpinner) eventLoadingSpinner.classList.add('hidden');
+                    return;
+                }
+                
+                const eventDocRef = firebase.doc(db, `artifacts/${appId}/users/${eventUserId}/events`, eventId);
+                const contributionsCollectionRef = firebase.collection(db, `artifacts/${appId}/users/${eventUserId}/events/${eventId}/contributions`);
+                
+                firebase.onSnapshot(eventDocRef, (eventDoc) => {
+                    if (eventDoc.exists()) {
+                        const eventData = eventDoc.data();
+                        if(eventTitle) eventTitle.textContent = eventData.name;
+                        if(eventMessage) {
+                            eventMessage.innerHTML = `
+                                <p>Type: ${eventData.type} | Date: ${eventData.date} | Location: ${eventData.location}</p>
+                                <p class="mt-2 text-gray-500">${eventData.theme}</p>
+                            `;
+                        }
+                        if(eventLoadingSpinner) eventLoadingSpinner.classList.add('hidden');
+                        if(eventContent) eventContent.classList.remove('hidden');
+                        
+                        if (isViewAdmin) {
+                            if (contributionFormContainer) contributionFormContainer.classList.add('hidden');
+                            if (eventClosedMessage) eventClosedMessage.classList.add('hidden');
+                            if (eventAdminPanel) eventAdminPanel.classList.remove('hidden');
+                            if(eventTitle) eventTitle.textContent = `${eventData.name} (Admin Panel)`;
+                            
+                            firebase.onSnapshot(contributionsCollectionRef, (snapshot) => {
+                                const contributions = [];
+                                let totalAmount = 0;
+                                snapshot.forEach((doc) => {
+                                    contributions.push({ id: doc.id, ...doc.data() });
+                                    totalAmount += doc.data().amount || 0;
+                                });
+                                contributions.sort((a, b) => {
+                                    if (a.timestamp && b.timestamp) {
+                                        return b.timestamp.toMillis() - a.timestamp.toMillis();
+                                    }
+                                    return 0;
+                                });
+                                if (eventAdminTotalContributions) eventAdminTotalContributions.textContent = totalAmount;
+                                if (eventAdminContributionsList) {
+                                    if (contributions.length === 0) {
+                                        eventAdminContributionsList.innerHTML = '<p class="text-center text-gray-500">No contributions yet.</p>';
+                                    } else {
+                                        eventAdminContributionsList.innerHTML = '';
+                                        contributions.forEach(contribution => {
+                                            const item = document.createElement('div');
+                                            item.className = 'bg-gray-50 p-4 rounded-xl shadow-inner border border-gray-200 flex flex-col space-y-2';
+                                            item.innerHTML = `
+                                                <p class="font-bold text-gray-800">${contribution.name}</p>
+                                                <p class="text-xl font-semibold text-orange-600 my-1">₹${contribution.amount}</p>
+                                                <p class="text-gray-600 text-sm">${contribution.message}</p>
+                                                <p class="text-xs text-gray-400 mt-2">Time: ${contribution.timestamp.toDate().toLocaleString()}</p>
+                                                <div class="space-x-2 mt-4">
+                                                    <button data-contributor-name="${contribution.name}" data-event-name="${eventData.name}" class="generate-thank-you-btn bg-green-500 text-white px-3 py-1 rounded-full text-sm hover:bg-green-600 flex items-center justify-center space-x-1">
+                                                        <span class="thank-you-text">✨ Generate Thank You Note</span>
+                                                        <div class="thank-you-loader loader hidden w-4 h-4"></div>
+                                                    </button>
+                                                </div>
+                                            `;
+                                            eventAdminContributionsList.appendChild(item);
+                                        });
+                                        eventAdminContributionsList.querySelectorAll('.generate-thank-you-btn').forEach(btn => {
+                                            btn.addEventListener('click', async (e) => {
+                                                const contributorName = e.target.dataset.contributorName;
+                                                const eventName = e.target.dataset.eventName;
+                                                const btnText = e.target.querySelector('.thank-you-text');
+                                                const btnLoader = e.target.querySelector('.thank-you-loader');
+                                                e.target.disabled = true;
+                                                btnText.classList.add('hidden');
+                                                btnLoader.classList.remove('hidden');
+
+                                                const thankYouPrompt = `Write a personalized thank you note for a contribution to a "${eventName}" event. The note should be addressed to "${contributorName}". It should be heartfelt and mention the event.`;
+                                                try {
+                                                    const note = await callGeminiApi(thankYouPrompt);
+                                                    alert(`Thank You Note for ${contributorName}:\n\n${note.replace(/\*/g, '').trim()}`);
+                                                } catch (error) {
+                                                    alert("Failed to generate thank you note. Please try again.");
+                                                } finally {
+                                                    e.target.disabled = false;
+                                                    btnText.classList.remove('hidden');
+                                                    btnLoader.classList.add('hidden');
+                                                }
+                                            });
+                                        });
+                                    }
+                                }
+                            });
+                        } else {
+                            if (eventAdminPanel) eventAdminPanel.classList.add('hidden');
+                            if (contributionFormContainer) contributionFormContainer.classList.remove('hidden');
+                            if (eventData.status === 'closed') {
+                                if(contributionFormContainer) contributionFormContainer.classList.add('hidden');
+                                if(eventClosedMessage) eventClosedMessage.classList.remove('hidden');
+                            } else {
+                                if(contributionFormContainer) contributionFormContainer.classList.remove('hidden');
+                                if(eventClosedMessage) eventClosedMessage.classList.add('hidden');
+                            }
+                        }
+                    } else {
+                        if(eventTitle) eventTitle.textContent = 'Event Not Found';
+                        if(eventMessage) eventMessage.textContent = 'The event you are looking for does not exist.';
+                        if(eventLoadingSpinner) eventLoadingSpinner.classList.add('hidden');
+                        if(eventContent) eventContent.classList.add('hidden');
+                    }
+                });
+
+                if (contributionForm) {
+                    const payBtn = contributionForm.querySelector('button[type="submit"]');
+                    const payBtnText = payBtn.querySelector('#pay-btn-text');
+                    const payBtnLoader = payBtn.querySelector('#pay-btn-loader');
+                    
+                    const giftIdeaButton = document.getElementById('generate-gift-idea-btn');
+                    if(giftIdeaButton) {
+                        const giftIdeaLoader = document.createElement('div');
+                        giftIdeaLoader.className = 'loader hidden w-4 h-4 ml-2';
+                        const giftIdeaButtonText = document.createElement('span');
+                        giftIdeaButtonText.textContent = '✨ Get Gift Ideas';
+                        giftIdeaButton.innerHTML = '';
+                        giftIdeaButton.appendChild(giftIdeaButtonText);
+                        giftIdeaButton.appendChild(giftIdeaLoader);
+
+                        giftIdeaButton.addEventListener('click', async () => {
+                            const eventName = eventTitle.textContent;
+                            const eventType = eventMessage.textContent.split('|')[0].replace('Type:', '').trim();
+                            if (!eventName || !eventType) {
+                                alert("Event details are missing. Cannot generate gift ideas.");
+                                return;
+                            }
+                            giftIdeaButtonText.classList.add('hidden');
+                            giftIdeaLoader.classList.remove('hidden');
+                            giftIdeaButton.disabled = true;
+                            try {
+                                const prompt = `Generate 3 gift ideas for a "${eventType}" event named "${eventName}". The ideas should be creative and suitable for a monetary contribution. Format as a bulleted list.`;
+                                const ideas = await callGeminiApi(prompt);
+                                alert(`Gift Ideas:\n\n${ideas.replace(/\*/g, '').trim()}`);
+                            } catch (error) {
+                                alert("Failed to generate gift ideas. Please try again.");
+                            } finally {
+                                giftIdeaButtonText.classList.remove('hidden');
+                                giftIdeaLoader.classList.add('hidden');
+                                giftIdeaButton.disabled = false;
+                            }
+                        });
+                    }
+
+                    contributionForm.addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const name = document.getElementById('contributor-name').value;
+                        const amount = document.getElementById('contribution-amount').value;
+                        const message = document.getElementById('contribution-message').value;
+                        const PLATFORM_FEE = 20;
+
+                        if (!name || !amount) {
+                            alert('Please provide your name and the amount.');
+                            return;
+                        }
+
+                        const totalAmount = parseFloat(amount) + PLATFORM_FEE;
+                        const userConfirmed = confirm(`You are about to contribute ₹${amount}. A platform fee of ₹${PLATFORM_FEE} will be added, making the total ₹${totalAmount}. Continue?`);
+
+                        if (!userConfirmed) {
+                            return;
+                        }
+
+                        payBtnText.textContent = 'Processing...';
+                        payBtnLoader.classList.remove('hidden');
+                        payBtn.disabled = true;
+
+                        try {
+                            const paymentResult = await simulatePayment(parseFloat(amount));
+                            if (paymentResult.success) {
+                                await firebase.addDoc(contributionsCollectionRef, {
+                                    name,
+                                    amount: parseFloat(amount),
+                                    message,
+                                    fee: PLATFORM_FEE,
+                                    timestamp: firebase.serverTimestamp()
+                                });
+                                alert(`Thank you for your contribution of ₹${amount} to ${eventTitle.textContent}! Total paid: ₹${totalAmount}.`);
+                                contributionForm.reset();
+                            } else {
+                                throw new Error(paymentResult.message);
+                            }
+                        } catch (error) {
+                            console.error("Error during contribution:", error);
+                            alert(`Failed to submit contribution. ${error.message || 'Please try again.'}`);
+                        } finally {
+                            payBtnText.textContent = 'Pay Now';
+                            payBtnLoader.classList.add('hidden');
+                            payBtn.disabled = false;
+                        }
+                    });
+                }
+            };
+            
+            const setupPandalCollectionPage = () => {
+                const firebase = window.firebase;
+                if (!firebase) {
+                    console.error('Firebase SDK not loaded.');
+                    return;
+                }
+                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+                if (Object.keys(firebaseConfig).length === 0) {
+                    console.error('Firebase configuration is missing.');
+                    return;
+                }
+                const app = firebase.initializeApp(firebaseConfig);
+                const auth = firebase.getAuth(app);
+                const db = firebase.getFirestore(app);
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                const userIdElement = document.getElementById('user-id');
+                const pandalFormContainer = document.getElementById('pandal-form-container');
+                const pandalLoginPrompt = document.getElementById('pandal-login-prompt');
+                const adminPanelContainer = document.getElementById('admin-panel-container');
+                const toggleAdminBtn = document.getElementById('toggle-admin-btn');
+                const contributionsList = document.getElementById('contributions-list');
+                const pandalForm = document.getElementById('pandal-form');
+                const adminContributionsList = document.getElementById('admin-contributions-list');
+                const totalContributionsSpan = document.getElementById('total-contributions');
+
+                const toggleAdminPanel = () => {
+                    const isHidden = adminPanelContainer.classList.contains('hidden');
+                    if (isHidden) {
+                        adminPanelContainer.classList.remove('hidden');
+                        toggleAdminBtn.textContent = 'Hide Admin Panel';
+                    } else {
+                        adminPanelContainer.classList.add('hidden');
+                        toggleAdminBtn.textContent = 'Show Admin Panel';
+                    }
+                };
+                if (toggleAdminBtn) toggleAdminBtn.addEventListener('click', toggleAdminPanel);
+
+                firebase.onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        if (pandalLoginPrompt) pandalLoginPrompt.classList.add('hidden');
+                        if (pandalFormContainer) pandalFormContainer.classList.remove('hidden');
+                        if (userIdElement) userIdElement.textContent = user.uid;
+                        const publicCollectionRef = firebase.collection(db, `artifacts/${appId}/public/data/pandal_collections`);
+                        const q = firebase.query(publicCollectionRef);
+                        firebase.onSnapshot(q, (snapshot) => {
+                            const contributions = [];
+                            let totalAmount = 0;
+                            snapshot.forEach((doc) => {
+                                const contribution = { id: doc.id, ...doc.data() };
+                                contributions.push(contribution);
+                                totalAmount += contribution.amount || 0;
+                            });
+                            contributions.sort((a, b) => {
+                                if (a.timestamp && b.timestamp) {
+                                    return b.timestamp.toMillis() - a.timestamp.toMillis();
+                                }
+                                return 0;
+                            });
+                            if (contributionsList) contributionsList.innerHTML = '';
+                            if (adminContributionsList) adminContributionsList.innerHTML = '';
+                            if (totalContributionsSpan) totalContributionsSpan.textContent = contributions.length;
+                            if (contributions.length === 0) {
+                                if (contributionsList) contributionsList.innerHTML = '<p class="text-center text-gray-500">No contributions yet. Be the first!</p>';
+                                if (adminContributionsList) adminContributionsList.innerHTML = '<p class="text-center text-gray-500">No contributions yet.</p>';
+                            } else {
+                                contributions.forEach(contribution => {
+                                    const contributionItem = document.createElement('div');
+                                    contributionItem.className = 'bg-gray-50 p-4 rounded-xl shadow-inner border border-gray-200';
+                                    contributionItem.innerHTML = `
+                                        <p class="font-bold text-gray-800">${contribution.name}</p>
+                                        <p class="text-xl font-semibold text-orange-600 my-1">₹${contribution.amount}</p>
+                                        <p class="text-gray-600 text-sm">${contribution.message}</p>
+                                        <p class="text-xs text-gray-400 mt-2">ID: ${contribution.userId}</p>
+                                    `;
+                                    if(contributionsList) contributionsList.appendChild(contributionItem);
+                                    const adminContributionItem = document.createElement('div');
+                                    adminContributionItem.className = 'bg-gray-50 p-4 rounded-xl shadow-inner border border-gray-200';
+                                    adminContributionItem.innerHTML = `
+                                        <p class="font-bold text-gray-800">${contribution.name}</p>
+                                        <p class="text-xl font-semibold text-orange-600 my-1">₹${contribution.amount}</p>
+                                        <p class="text-gray-600 text-sm">${contribution.message}</p>
+                                        <p class="text-xs text-gray-400 mt-2">ID: ${contribution.userId}</p>
+                                        <p class="text-xs text-gray-400">Time: ${contribution.timestamp.toDate().toLocaleString()}</p>
+                                    `;
+                                    if(adminContributionsList) adminContributionsList.appendChild(adminContributionItem);
+                                });
+                            }
+                        });
+                        if (pandalForm) {
+                            const payBtn = pandalForm.querySelector('button[type="submit"]');
+                            const payBtnText = pandalForm.querySelector('#pandal-pay-btn-text');
+                            const payBtnLoader = pandalForm.querySelector('#pandal-pay-btn-loader');
+                            pandalForm.addEventListener('submit', async (e) => {
+                                e.preventDefault();
+                                const name = document.getElementById('contributor-name').value;
+                                const amount = document.getElementById('contribution-amount').value;
+                                const message = document.getElementById('contribution-message').value;
+                                const PLATFORM_FEE = 20;
+
+                                if (!name || !amount) {
+                                    alert('Please provide your name and the amount.');
+                                    return;
+                                }
+
+                                const totalAmount = parseFloat(amount) + PLATFORM_FEE;
+                                const userConfirmed = confirm(`You are about to contribute ₹${amount}. A platform fee of ₹${PLATFORM_FEE} will be added, making the total ₹${totalAmount}. Continue?`);
+
+                                if (!userConfirmed) {
+                                    return;
+                                }
+
+                                payBtnText.textContent = 'Processing...';
+                                payBtnLoader.classList.remove('hidden');
+                                payBtn.disabled = true;
+
+                                try {
+                                    const paymentResult = await simulatePayment(parseFloat(amount));
+                                    if (paymentResult.success) {
+                                        await firebase.addDoc(publicCollectionRef, {
+                                            name,
+                                            amount: parseFloat(amount),
+                                            message,
+                                            userId: user.uid,
+                                            fee: PLATFORM_FEE,
+                                            timestamp: firebase.serverTimestamp()
+                                        });
+                                        alert(`Thank you for your contribution of ₹${amount}! Total paid: ₹${totalAmount}.`);
+                                        pandalForm.reset();
+                                    } else {
+                                        throw new Error(paymentResult.message);
+                                    }
+                                } catch (error) {
+                                    console.error("Error adding document: ", error);
+                                    alert(`Failed to submit contribution. ${error.message || 'Please try again.'}`);
+                                } finally {
+                                    payBtnText.textContent = 'Pay Now';
+                                    payBtnLoader.classList.add('hidden');
+                                    payBtn.disabled = false;
+                                }
+                            });
+                        }
+                    } else {
+                        if (userIdElement) userIdElement.textContent = 'Not Signed In';
+                        if (pandalFormContainer) pandalFormContainer.classList.add('hidden');
+                        if (pandalLoginPrompt) pandalLoginPrompt.classList.remove('hidden');
+                        if (adminPanelContainer) adminPanelContainer.classList.add('hidden');
+                    }
+                });
+            };
+            
+            const setupSuperAdminPage = () => {
+                const firebase = window.firebase;
+                const auth = firebase.getAuth(app);
+                const db = firebase.getFirestore(app);
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                const superAdminContainer = document.getElementById('super-admin-view');
+                const loginPrompt = document.getElementById('super-admin-login-prompt');
+                const loginBtn = document.getElementById('super-admin-login-btn');
+                const contentContainer = document.getElementById('super-admin-content');
+                const eventsList = document.getElementById('all-events-list');
+                const publicEventsList = document.getElementById('public-events-list');
+                const downloadBtn = document.getElementById('download-statement-btn');
+
+                const showAdminContent = (user) => {
+                    const SUPER_ADMIN_UID = 'YOUR_SUPER_ADMIN_UID_HERE'; // Replace with a real super admin UID
+                    if (user && user.uid === SUPER_ADMIN_UID) {
+                        if (loginPrompt) loginPrompt.classList.add('hidden');
+                        if (contentContainer) contentContainer.classList.remove('hidden');
+                    } else {
+                        if (loginPrompt) loginPrompt.classList.remove('hidden');
+                        if (contentContainer) contentContainer.classList.add('hidden');
+                    }
+                };
+
+                firebase.onAuthStateChanged(auth, showAdminContent);
+                if (loginBtn) loginBtn.addEventListener('click', () => {
+                    const provider = new firebase.GoogleAuthProvider();
+                    firebase.signInWithPopup(auth, provider);
+                });
+
+                const fetchAllEvents = async () => {
+                    if (!eventsList || !publicEventsList) return;
+                    eventsList.innerHTML = '<p class="text-center text-gray-500">Loading user events...</p>';
+                    publicEventsList.innerHTML = '<p class="text-center text-gray-500">Loading public events...</p>';
+
+                    const allEvents = [];
+                    const usersCollectionRef = firebase.collection(db, `artifacts/${appId}/users`);
+                    const usersSnapshot = await firebase.getDocs(usersCollectionRef);
+                    
+                    for (const userDoc of usersSnapshot.docs) {
+                        const eventsCollectionRef = firebase.collection(db, `artifacts/${appId}/users/${userDoc.id}/events`);
+                        const eventsSnapshot = await firebase.getDocs(eventsCollectionRef);
+                        for (const eventDoc of eventsSnapshot.docs) {
+                            allEvents.push({ id: eventDoc.id, userId: userDoc.id, ...eventDoc.data() });
+                        }
+                    }
+
+                    if (allEvents.length > 0) {
+                        eventsList.innerHTML = '';
+                        allEvents.forEach(event => {
+                            const eventItem = document.createElement('div');
+                            eventItem.className = 'bg-white p-4 rounded-xl shadow-inner border border-gray-200';
+                            eventItem.innerHTML = `
+                                <h4 class="font-bold text-gray-900">${event.name}</h4>
+                                <p class="text-sm text-gray-600">Event ID: ${event.id}</p>
+                                <p class="text-sm text-gray-600">Creator ID: ${event.userId}</p>
+                                <div class="mt-2 space-x-2">
+                                    <a href="#event?userId=${event.userId}&eventId=${event.id}&view=admin" class="text-blue-500 hover:underline">View Admin Panel</a>
+                                    <button data-user-id="${event.userId}" data-event-id="${event.id}" class="delete-event-btn text-red-500 hover:underline">Delete</button>
+                                </div>
+                            `;
+                            eventsList.appendChild(eventItem);
+                        });
+                    } else {
+                        eventsList.innerHTML = '<p class="text-center text-gray-500">No user events found.</p>';
+                    }
+
+                    const publicEvents = [];
+                    const publicEventsCollectionRef = firebase.collection(db, `artifacts/${appId}/public/data/pandal_collections`);
+                    const publicEventsSnapshot = await firebase.getDocs(publicEventsCollectionRef);
+                    publicEventsSnapshot.forEach(eventDoc => {
+                        publicEvents.push({ id: eventDoc.id, ...eventDoc.data() });
+                    });
+
+                    if (publicEvents.length > 0) {
+                        publicEventsList.innerHTML = '';
+                         const totalPublicContributions = publicEvents.reduce((acc, curr) => acc + (curr.amount || 0), 0);
+                         const publicTotalElement = document.createElement('div');
+                         publicTotalElement.className = 'bg-white p-4 rounded-xl shadow-inner border border-gray-200';
+                         publicTotalElement.innerHTML = `<p class="font-bold text-gray-900">Total Public Pandal Contributions: <span class="text-orange-500">₹${totalPublicContributions}</span></p>`;
+                         publicEventsList.appendChild(publicTotalElement);
+                         
+                        publicEvents.forEach(event => {
+                            const eventItem = document.createElement('div');
+                            eventItem.className = 'bg-white p-4 rounded-xl shadow-inner border border-gray-200 mt-2';
+                            eventItem.innerHTML = `
+                                <h4 class="font-bold text-gray-900">Contribution from: ${event.name}</h4>
+                                <p class="text-sm text-gray-600">Amount: ₹${event.amount}</p>
+                                <p class="text-sm text-gray-600">Message: ${event.message}</p>
+                                <p class="text-sm text-gray-600">User ID: ${event.userId}</p>
+                                <button data-doc-id="${event.id}" class="delete-public-event-btn text-red-500 hover:underline">Delete</button>
+                            `;
+                            publicEventsList.appendChild(eventItem);
+                        });
+                    } else {
+                        publicEventsList.innerHTML = '<p class="text-center text-gray-500">No public contributions found.</p>';
+                    }
+                    
+                    document.querySelectorAll('.delete-event-btn').forEach(btn => {
+                        btn.addEventListener('click', async (e) => {
+                            const eventId = e.target.dataset.eventId;
+                            const userId = e.target.dataset.userId;
+                            if (confirm(`Are you sure you want to delete this event (${eventId})? This action cannot be undone.`)) {
+                                try {
+                                    await firebase.deleteDoc(firebase.doc(db, `artifacts/${appId}/users/${userId}/events`, eventId));
+                                    alert('Event deleted successfully!');
+                                    fetchAllEvents();
+                                } catch (error) {
+                                    console.error("Error deleting event:", error);
+                                    alert("Failed to delete event.");
+                                }
+                            }
+                        });
+                    });
+                     document.querySelectorAll('.delete-public-event-btn').forEach(btn => {
+                        btn.addEventListener('click', async (e) => {
+                            const docId = e.target.dataset.docId;
+                            if (confirm(`Are you sure you want to delete this public contribution (${docId})? This action cannot be undone.`)) {
+                                try {
+                                    await firebase.deleteDoc(firebase.doc(db, `artifacts/${appId}/public/data/pandal_collections`, docId));
+                                    alert('Contribution deleted successfully!');
+                                    fetchAllEvents();
+                                } catch (error) {
+                                    console.error("Error deleting contribution:", error);
+                                    alert("Failed to delete contribution.");
+                                }
+                            }
+                        });
+                    });
+                };
+                
+                if (contentContainer) {
+                    fetchAllEvents();
+                    if(downloadBtn) {
+                        downloadBtn.addEventListener('click', async () => {
+                            const csvHeader = ["Event Name", "Contributor Name", "Amount", "Fee", "Message", "Event Created At", "Contribution Time\n"];
+                            const csvRows = [];
+                            
+                            const allEvents = [];
+                            const usersCollectionRef = firebase.collection(db, `artifacts/${appId}/users`);
+                            const usersSnapshot = await firebase.getDocs(usersCollectionRef);
+                            
+                            for (const userDoc of usersSnapshot.docs) {
+                                const eventsCollectionRef = firebase.collection(db, `artifacts/${appId}/users/${userDoc.id}/events`);
+                                const eventsSnapshot = await firebase.getDocs(eventsCollectionRef);
+                                for (const eventDoc of eventsSnapshot.docs) {
+                                     const contributionsCollectionRef = firebase.collection(db, `artifacts/${appId}/users/${userDoc.id}/events/${eventDoc.id}/contributions`);
+                                     const contributionsSnapshot = await firebase.getDocs(contributionsCollectionRef);
+                                     contributionsSnapshot.forEach(contributionDoc => {
+                                         const eventData = eventDoc.data();
+                                         const contributionData = contributionDoc.data();
+                                         csvRows.push([
+                                             `"${eventData.name}"`,
+                                             `"${contributionData.name}"`,
+                                             `"${contributionData.amount}"`,
+                                             `"${contributionData.fee}"`,
+                                             `"${contributionData.message}"`,
+                                             `"${eventData.createdAt.toDate().toLocaleString()}"`,
+                                             `"${contributionData.timestamp.toDate().toLocaleString()}"\n`
+                                         ].join(','));
+                                     });
+                                }
+                            }
+
+                            const csvContent = "data:text/csv;charset=utf-8," + csvHeader.join(',') + csvRows.join('');
+                            const encodedUri = encodeURI(csvContent);
+                            const link = document.createElement("a");
+                            link.setAttribute("href", encodedUri);
+                            link.setAttribute("download", "contributions_statement.csv");
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        });
+                    }
+                }
+            };
+            
+            const renderPage = (pageName, params = {}) => {
+                let html = '';
+                switch (pageName) {
+                    case 'home':
+                        html = `
+                            <section id="home-view">
+                                <section class="bg-gray-100 py-20 md:py-32">
+                                    <div class="container mx-auto px-4 text-center">
+                                        <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900 leading-tight">
+                                            <span class="text-gradient">Celebrate Your Moments,</span> <br class="hidden sm:inline">The Modern Way
+                                        </h1>
+                                        <p class="mt-6 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+                                            GiftDgift is the smart platform that allows you to create a personalized event page to collect monetary contributions from friends and family.
+                                        </p>
+                                        <div class="mt-10">
+                                            <a href="#create-event" class="nav-link btn-gradient text-white px-10 py-5 rounded-full font-bold text-lg shadow-xl">
+                                                Start Your Event Now
+                                            </a>
+                                        </div>
+                                    </div>
+                                </section>
+                                <section id="how-it-works" class="bg-white py-20 md:py-24">
+                                    <div class="container mx-auto px-4 text-center">
+                                        <h2 class="text-3xl md:text-4xl font-bold text-gray-900">How It Works</h2>
+                                        <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">Creating an event with GiftDgift is simple and straightforward.</p>
+                                        <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-12">
+                                            <div class="p-8 bg-white rounded-3xl shadow-xl border border-gray-200 transform hover:-translate-y-2 transition duration-300">
+                                                <div class="flex justify-center mb-6">
+                                                    <svg class="w-16 h-16 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                                </div>
+                                                <h3 class="text-2xl font-semibold text-gray-900">1. Create Your Page</h3>
+                                                <p class="mt-4 text-gray-600">Start by creating a personalized event page for your wedding, naming ceremony, or special occasion.</p>
+                                            </div>
+                                            <div class="p-8 bg-white rounded-3xl shadow-xl border border-gray-200 transform hover:-translate-y-2 transition duration-300">
+                                                <div class="flex justify-center mb-6">
+                                                    <svg class="w-16 h-16 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.887 13.593 9 14.17 9 15.5c0 1.573-.2 3.633-2.5 3.5s-2.5-2-2.5-3.5c0-.66.1-1.2.284-1.658l-1.921-2.06c-.463-.497-1.127-.614-1.742-.31l-1.579.79C.111 13.9.111 15.1 1.742 16l-1.579.79c-.615.305-.98.777-.98 1.488S.111 19.8 1.742 20.6l1.579.79c.615.305 1.18.238 1.742-.31l2.061-2.181c.264-.28.45-.63.63-1.011l2.04-3.06c.18-.38.27-.8.27-1.15s-.09-.77-.27-1.15l-2.04-3.06c-.18-.38-.366-.731-.63-1.012L4.062 6.541l-2.06-2.18c-.563-.59-1.227-.657-1.742-.31l-1.579.79C.111 5.9.111 7.1 1.742 8l-1.579.79c-.615.305-.98.777-.98 1.488S.111 11.8 1.742 12.6l1.579.79c.563.305 1.18.238 1.742-.31l2.06-2.18c-.264.28-.45.63-.63 1.011l-2.04 3.06c-.18.38-.27.8-.27 1.15s.09.77.27 1.15l2.04 3.06c.18.38.366.731.63 1.012l1.921 2.06c.463.497 1.127.614 1.742.31l1.579-.79c.615-.305-1.18-.238-1.742.31l-2.06 2.18c-.264.28-.45.63-.63 1.011l-2.04 3.06c-.18.38-.27.8-.27 1.15s.09.77.27 1.15l2.04 3.06c.18.38.366.731.63 1.012l1.921 2.06c.463.497 1.127.614 1.742.31l1.579-.79c.615-.305-1.18-.238-1.742.31L4.877 21.1Z"></path></svg>
+                                                </div>
+                                                <h3 class="text-2xl font-semibold text-gray-900">2. Share with Guests</h3>
+                                                <p class="mt-4 text-gray-600">Share your unique event link with your guests via text, email, or social media. They can contribute easily and securely.</p>
+                                            </div>
+                                            <div class="p-8 bg-white rounded-3xl shadow-xl border border-gray-200 transform hover:-translate-y-2 transition duration-300">
+                                                <div class="flex justify-center mb-6">
+                                                    <svg class="w-16 h-16 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.333-1.333-3.333-2.667-6-2.667S1.333 6.667 0 8m24 0c-1.333-1.333-3.333-2.667-6-2.667S17.333 6.667 16 8m-4-6v16m-4-8h8m-4 8v4m-4-4h8m-4 4v4m-4-4h8"></path></svg>
+                                                </div>
+                                                <h3 class="text-2xl font-semibold text-gray-900">3. Redeem Your Gifts</h3>
+                                                <p class="mt-4 text-gray-600">Once your event is over, redeem the pooled funds as cash transfers, gift cards, or tangible gifts.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                                <section class="bg-gray-50 py-20 md:py-24">
+                                    <div class="container mx-auto px-4 text-center">
+                                        <h2 class="text-3xl md:text-4xl font-bold text-gray-900">The Power of Giving</h2>
+                                        <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto italic">
+                                            दातव्यमिति यद्दानं दीयतेऽनुपकारिणे।<br>
+                                            देशे काले च पात्रे च तद्दानं सात्त्विकं स्मृतम्॥<br><br>
+                                            **Translation:** "That charity which is given as a matter of duty, without expectation of a return, at a proper time and place, and to a worthy person, is considered to be in the mode of goodness."
+                                        </p>
+                                        <div class="mt-8">
+                                            <p class="text-xl text-gray-700 max-w-2xl mx-auto fade-in-scroll">
+                                                True giving is that which flows from a pure heart, offered at the right time to the deserving, without expecting anything in return. Whether it is called Dāna in the Gita, Sadaqah in the Quran, or Charity in the Bible — it is the selfless intention that sanctifies the gift and makes it divine.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </section>
+                                <section id="features" class="py-20 md:py-24 bg-gray-50">
+                                    <div class="container mx-auto px-4">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                                            <div>
+                                                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
+                                                    Your Contributions, Your Choice.
+                                                </h2>
+                                                <p class="mt-4 text-lg text-gray-600">
+                                                    GiftDgift gives you the freedom to choose how you want to receive your contributions. It's your event, your funds, and your decision.
+                                                </p>
+                                                <ul class="mt-8 space-y-4">
+                                                    <li class="flex items-start">
+                                                        <svg class="flex-shrink-0 w-6 h-6 text-orange-500 mt-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                                        <div class="ml-3">
+                                                            <h4 class="text-xl font-semibold text-gray-900">Cash Transfers</h4>
+                                                            <p class="mt-1 text-gray-600">Easily transfer your collected funds directly to your bank account.</p>
+                                                        </div>
+                                                    </li>
+                                                    <li class="flex items-start">
+                                                        <svg class="flex-shrink-0 w-6 h-6 text-orange-500 mt-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                                        <div class="ml-3">
+                                                            <h4 class="text-xl font-semibold text-gray-900">Gift Cards</h4>
+                                                            <p class="mt-1 text-gray-600">Convert the funds into gift cards from your favorite retailers.</p>
+                                                        </div>
+                                                    </li>
+                                                    <li class="flex items-start">
+                                                        <svg class="flex-shrink-0 w-6 h-6 text-orange-500 mt-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                                        <div class="ml-3">
+                                                            <h4 class="text-xl font-semibold text-gray-900">Tangible Gifts</h4>
+                                                            <p class="mt-1 text-gray-600">Use the pooled money to purchase the gifts you've always wanted.</p>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="hidden md:block">
+                                                <img src="https://placehold.co/600x400/F97316/ffffff?text=Modern+Event+Page+Mockup" alt="Mockup of a personalized modern celebration event page" class="rounded-3xl shadow-2xl">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                                <section id="secret-santa" class="bg-white py-20 md:py-24">
+                                    <div class="container mx-auto px-4 text-center">
+                                        <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Secret Santa Generator</h2>
+                                        <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
+                                            Organize your next Secret Santa with our AI assistant! Just enter the names and we'll handle the rest.
+                                        </p>
+                                        <div class="mt-10 max-w-xl mx-auto bg-gray-50 p-8 md:p-12 rounded-3xl shadow-2xl text-left">
+                                            <div class="space-y-6">
+                                                <div>
+                                                    <label for="santa-names" class="block text-sm font-medium text-gray-700">Participant Names (comma-separated)</label>
+                                                    <input type="text" id="santa-names" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2" placeholder="e.g., Jane, John, Sarah, Mark">
+                                                </div>
+                                                <div>
+                                                    <label for="gift-preferences" class="block text-sm font-medium text-gray-700">Gift Preferences (optional)</label>
+                                                    <textarea id="gift-preferences" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2" placeholder="e.g., John likes books, Sarah loves coffee..."></textarea>
+                                                </div>
+                                                <button id="generate-santa-btn" class="btn-gradient text-white w-full px-8 py-4 rounded-full font-bold text-lg shadow-xl flex items-center justify-center">
+                                                    <span id="santa-btn-text">Generate Secret Santa</span>
+                                                    <div id="santa-loader" class="loader hidden"></div>
+                                                </button>
+                                            </div>
+                                            <div id="santa-results" class="mt-8 hidden">
+                                                <h3 class="text-2xl font-bold text-gray-900 mb-4">Secret Santa Assignments</h3>
+                                                <p id="santa-output" class="whitespace-pre-line text-gray-600"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </section>
+                        `;
+                        break;
+                    
+                    case 'create-event':
+                        html = `
+                            <section id="create-event-view" class="bg-gray-900 text-white py-20">
+                                <div class="container mx-auto px-4 text-center">
+                                    <h2 class="text-3xl md:text-4xl font-bold">Create Your Event Now</h2>
+                                    <p class="mt-4 text-lg max-w-2xl mx-auto opacity-90">
+                                        Fill out the form below to get started. Use our AI-powered tools to help you plan!
+                                    </p>
+                                    <div id="create-event-form-container" class="mt-10 max-w-xl mx-auto bg-white p-8 md:p-12 rounded-3xl shadow-2xl text-gray-800 hidden">
+                                        <form id="event-form" class="space-y-6 text-left">
+                                            <div>
+                                                <label for="event-name" class="block text-sm font-medium text-gray-700">Event Name</label>
+                                                <input type="text" id="event-name" name="event-name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2" required>
+                                            </div>
+                                            <div>
+                                                <label for="event-type" class="block text-sm font-medium text-gray-700">Event Type</label>
+                                                <select id="event-type" name="event-type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2" required>
+                                                    <option value="">Select an event type</option>
+                                                    <option value="Wedding">Wedding</option>
+                                                    <option value="Birthday">Birthday</option>
+                                                    <option value="Baby Shower">Baby Shower</option>
+                                                    <option value="Anniversary">Anniversary</option>
+                                                    <option value="Housewarming">Housewarming</option>
+                                                    <option value="General">General</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label for="event-date" class="block text-sm font-medium text-gray-700">Event Date</label>
+                                                <input type="date" id="event-date" name="event-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2" required>
+                                            </div>
+                                            <div>
+                                                <label for="event-location" class="block text-sm font-medium text-gray-700">Event Location</label>
+                                                <input type="text" id="event-location" name="event-location" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2" required>
+                                            </div>
+                                            
+                                            <div class="mt-6">
+                                                <label for="event-theme" class="block text-sm font-medium text-gray-700">Event Theme</label>
+                                                <div class="flex items-center space-x-2 mt-1">
+                                                    <input type="text" id="event-theme" name="event-theme" placeholder="A festive theme for a wedding..." class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2">
+                                                    <button type="button" id="generate-theme-btn" class="btn-gradient text-white px-4 py-2 rounded-full font-semibold flex items-center justify-center">
+                                                        <span id="theme-btn-text">✨ Generate Theme</span>
+                                                        <div id="theme-loader" class="loader hidden"></div>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="mt-6">
+                                                <label for="invitation-text" class="block text-sm font-medium text-gray-700">Invitation Text</label>
+                                                <div class="flex flex-col space-y-2 mt-1">
+                                                    <textarea id="invitation-text" name="invitation-text" rows="6" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2"></textarea>
+                                                    <div class="flex items-center space-x-2">
+                                                        <label for="tone" class="text-sm font-medium text-gray-700">Tone:</label>
+                                                        <select id="tone" name="tone" class="rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-1 text-sm">
+                                                            <option value="formal">Formal</option>
+                                                            <option value="casual">Casual</option>
+                                                            <option value="festive">Festive</option>
+                                                        </select>
+                                                        <button type="button" id="generate-invite-btn" class="btn-gradient text-white px-4 py-2 rounded-full font-semibold flex items-center justify-center">
+                                                            <span id="invite-btn-text">✨ Write Invitation</span>
+                                                            <div id="invite-loader" class="loader hidden"></div>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mt-6">
+                                                <button type="submit" class="btn-gradient text-white w-full px-8 py-4 rounded-full font-bold text-lg shadow-xl">
+                                                    Create Event Page
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div id="create-event-login-prompt" class="mt-10 max-w-xl mx-auto bg-white p-8 md:p-12 rounded-3xl shadow-2xl text-center hidden">
+                                        <p class="text-lg text-gray-600 mb-4">Please log in to create an event.</p>
+                                        <button id="create-event-login-btn" class="bg-orange-500 text-white px-6 py-3 rounded-full font-semibold shadow-md hover:bg-orange-600 transition">Log In with Google</button>
+                                    </div>
+                                </div>
+                            </section>
+                        `;
+                        break;
+                    
+                    case 'my-events':
+                        html = `
+                            <section id="my-events-view" class="bg-gray-100 py-20 md:py-24">
+                                <div class="container mx-auto px-4">
+                                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 text-center">My Events</h2>
+                                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto text-center">Manage your created events here. Share links with guests, view contributions, and close events when you're done.</p>
+                                    <div id="my-events-list" class="mt-10 space-y-8">
+                                        <p id="loading-my-events" class="text-center text-gray-500">Loading your events...</p>
+                                    </div>
+                                    <div id="no-events-message" class="hidden text-center text-gray-500 mt-10">
+                                        <p>You haven't created any events yet.</p>
+                                        <a href="#create-event" class="nav-link text-orange-500 hover:underline mt-2 inline-block">Create your first event!</a>
+                                    </div>
+                                    <div id="my-events-login-prompt" class="hidden max-w-xl mx-auto bg-white p-8 md:p-12 rounded-3xl shadow-2xl text-center mt-10">
+                                        <p class="text-lg text-gray-600 mb-4">Please log in to see your events.</p>
+                                        <button id="my-events-login-btn" class="bg-orange-500 text-white px-6 py-3 rounded-full font-semibold shadow-md hover:bg-orange-600 transition">Log In with Google</button>
+                                    </div>
+                                </div>
+                            </section>
+                        `;
+                        break;
+                    
+                    case 'event':
+                        html = `
+                            <section id="single-event-view" class="bg-gray-100 py-20 md:py-24">
+                                <div class="container mx-auto px-4 text-center">
+                                    <h2 id="event-title" class="text-3xl md:text-4xl font-bold text-gray-900">Event Not Found</h2>
+                                    <p id="event-message" class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
+                                        Loading event details...
+                                    </p>
+                                    <div id="event-content" class="mt-10 max-w-2xl mx-auto hidden">
+                                        <div class="bg-white p-8 rounded-3xl shadow-2xl mb-8 text-left">
+                                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Make a Contribution</h3>
+                                            <div id="contribution-form-container">
+                                                <form id="contribution-form" class="space-y-4">
+                                                    <div>
+                                                        <label for="contributor-name" class="block text-sm font-medium text-gray-700">Your Name</label>
+                                                        <input type="text" id="contributor-name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2" placeholder="e.g., Rohan Sharma" required>
+                                                    </div>
+                                                    <div>
+                                                        <label for="contribution-amount" class="block text-sm font-medium text-gray-700">Amount (in INR)</label>
+                                                        <input type="number" id="contribution-amount" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2" min="1" placeholder="e.g., 501" required>
+                                                    </div>
+                                                    <div>
+                                                        <label for="contribution-message" class="block text-sm font-medium text-gray-700">Message (optional)</label>
+                                                        <textarea id="contribution-message" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2" placeholder="Best wishes for the celebrations!"></textarea>
+                                                    </div>
+                                                    <div class="mt-4">
+                                                        <button type="button" id="generate-gift-idea-btn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-full font-semibold hover:bg-gray-300 transition flex items-center justify-center space-x-2 w-full">
+                                                            <span id="gift-idea-text">✨ Get Gift Ideas</span>
+                                                            <div id="gift-idea-loader" class="loader hidden w-4 h-4"></div>
+                                                        </button>
+                                                    </div>
+                                                    <button type="submit" class="btn-gradient text-white w-full px-8 py-4 rounded-full font-bold text-lg shadow-xl flex items-center justify-center space-x-2 mt-4">
+                                                        <span id="pay-btn-text">Pay Now</span>
+                                                        <div id="pay-btn-loader" class="loader hidden"></div>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                            <div id="event-closed-message" class="hidden text-center text-red-500 font-bold p-4 rounded-xl border border-red-200 bg-red-50">
+                                                <p>This event is now closed for contributions.</p>
+                                            </div>
+                                        </div>
+                                        <!-- Admin Panel for a specific event -->
+                                        <div id="event-admin-panel" class="bg-white p-8 rounded-3xl shadow-2xl mt-8 text-left hidden">
+                                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Event Admin Panel</h3>
+                                            <p class="text-sm text-gray-600 mb-4">Total Contributions: <span id="event-total-contributions" class="font-bold text-orange-500">0</span></p>
+                                            <div id="event-admin-contributions-list" class="space-y-4 max-h-96 overflow-y-auto">
+                                                <p id="loading-event-admin-contributions" class="text-center text-gray-500">Loading contributions...</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="event-loading-spinner" class="mt-10">
+                                        <div class="loader mx-auto"></div>
+                                    </div>
+                                </div>
+                            </section>
+                        `;
+                        break;
+                    
+                    case 'pandal-collection':
+                         html = `
+                            <section id="pandal-collection-view" class="bg-gray-100 py-20 md:py-24">
+                                <div class="container mx-auto px-4 text-center">
+                                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Public Pandal Collection</h2>
+                                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
+                                        Contribute to our community events in real-time. Your support is greatly appreciated!
+                                    </p>
+                                    <div id="pandal-app" class="mt-10 max-w-2xl mx-auto">
+                                        <div class="bg-white p-4 rounded-3xl shadow-lg mb-6">
+                                            <p class="text-sm font-semibold text-gray-600">Your User ID: <span id="user-id" class="font-normal text-orange-500">Connecting...</span></p>
+                                        </div>
+                                        <div id="pandal-form-container" class="bg-white p-8 rounded-3xl shadow-2xl mb-8 text-left hidden">
+                                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Make a Contribution</h3>
+                                            <form id="pandal-form" class="space-y-4">
+                                                <div>
+                                                    <label for="contributor-name" class="block text-sm font-medium text-gray-700">Your Name</label>
+                                                    <input type="text" id="contributor-name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2" placeholder="e.g., Rohan Sharma">
+                                                </div>
+                                                <div>
+                                                    <label for="contribution-amount" class="block text-sm font-medium text-gray-700">Amount (in INR)</label>
+                                                    <input type="number" id="contribution-amount" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2" min="1" placeholder="e.g., 501">
+                                                </div>
+                                                <div>
+                                                    <label for="contribution-message" class="block text-sm font-medium text-gray-700">Message (optional)</label>
+                                                    <textarea id="contribution-message" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2" placeholder="Best wishes for the celebrations!"></textarea>
+                                                </div>
+                                                <button type="submit" class="btn-gradient text-white w-full px-8 py-4 rounded-full font-bold text-lg shadow-xl flex items-center justify-center space-x-2">
+                                                    <span id="pandal-pay-btn-text">Pay Now</span>
+                                                    <div id="pandal-pay-btn-loader" class="loader hidden"></div>
+                                                </button>
+                                            </form>
+                                        </div>
+                                        <div id="pandal-login-prompt" class="bg-white p-8 rounded-3xl shadow-2xl mb-8 text-center hidden">
+                                            <p class="text-lg text-gray-600 mb-4">Please log in to make a contribution.</p>
+                                            <button id="pandal-login-btn" class="bg-orange-500 text-white px-6 py-3 rounded-full font-semibold shadow-md hover:bg-orange-600 transition">Log In with Google</button>
+                                        </div>
+                                        <div class="bg-white p-8 rounded-3xl shadow-2xl text-left">
+                                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Live Contributions</h3>
+                                            <div id="contributions-list" class="space-y-4 max-h-96 overflow-y-auto">
+                                                <p id="loading-contributions" class="text-center text-gray-500">Loading contributions...</p>
+                                            </div>
+                                        </div>
+                                        <div class="mt-8 text-center">
+                                            <button id="toggle-admin-btn" class="bg-gray-300 text-gray-800 px-6 py-3 rounded-full font-semibold hover:bg-gray-400 transition">Show Admin Panel</button>
+                                        </div>
+                                        <div id="admin-panel-container" class="bg-white p-8 rounded-3xl shadow-2xl mt-8 text-left hidden">
+                                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Event Admin Panel</h3>
+                                            <p class="text-sm text-gray-600 mb-4">This panel shows all contributions. Total Contributions: <span id="total-contributions" class="font-bold text-orange-500">0</span></p>
+                                            <div id="admin-contributions-list" class="space-y-4 max-h-96 overflow-y-auto">
+                                                <p id="loading-admin-contributions" class="text-center text-gray-500">Loading admin panel...</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        `;
+                        break;
+                    case 'super-admin':
+                        html = `
+                            <section id="super-admin-view" class="bg-gray-100 py-20 md:py-24">
+                                <div class="container mx-auto px-4">
+                                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 text-center">Super Admin Panel</h2>
+                                    <p class="mt-4 text-lg text-red-600 max-w-2xl mx-auto text-center">
+                                        ⚠️ This is a SUPER ADMIN view. You have access to all events and contributions.
+                                    </p>
+                                    <div id="super-admin-content" class="hidden mt-10">
+                                        <div class="bg-white p-8 rounded-3xl shadow-2xl">
+                                            <div class="flex justify-between items-center mb-4">
+                                                <h3 class="text-2xl font-bold text-gray-900">All User-Created Events</h3>
+                                                <button id="download-statement-btn" class="bg-green-500 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-green-600 transition">
+                                                    Download Contributions Statement
+                                                </button>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mb-4">This list includes all private events created by users. You can view the admin panel for each or delete them.</p>
+                                            <div id="all-events-list" class="space-y-4">
+                                                <p class="text-center text-gray-500">Loading user events...</p>
+                                            </div>
+                                        </div>
+                                        <div class="bg-white p-8 rounded-3xl shadow-2xl mt-8">
+                                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Public Pandal Contributions</h3>
+                                            <p class="text-sm text-gray-600 mb-4">This list includes all contributions to the public collection. You can delete individual contributions.</p>
+                                            <div id="public-events-list" class="space-y-4">
+                                                <p class="text-center text-gray-500">Loading public events...</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="super-admin-login-prompt" class="max-w-xl mx-auto bg-white p-8 md:p-12 rounded-3xl shadow-2xl text-center mt-10 hidden">
+                                        <p class="text-lg text-gray-600 mb-4">Please log in to access the Super Admin Panel.</p>
+                                        <button id="super-admin-login-btn" class="bg-orange-500 text-white px-6 py-3 rounded-full font-semibold shadow-md hover:bg-orange-600 transition">Log In with Google</button>
+                                    </div>
+                                </div>
+                            </section>
+                        `;
+                        break;
+                    default:
+                        window.location.hash = '#home';
+                        return;
+                }
+                appContainer.innerHTML = html;
+                
+                if (pageName === 'home') {
+                    setupHomePage();
+                }
+                if (pageName === 'create-event') {
+                    setupCreateEventPage();
+                }
+                if (pageName === 'my-events') {
+                    setupMyEventsPage();
+                }
+                if (pageName === 'event') {
+                    setupSingleEventPage(params);
+                }
+                if (pageName === 'pandal-collection') {
+                    setupPandalCollectionPage();
+                }
+                if (pageName === 'super-admin') {
+                    setupSuperAdminPage();
+                }
+            };
+
+            const firebase = window.firebase;
+            let app, auth, db;
+            const SUPER_ADMIN_UID = 'YOUR_SUPER_ADMIN_UID_HERE'; // Replace with a real super admin UID
+
+            const setupFirebase = () => {
+                if (!firebase) {
+                    console.error('Firebase SDK not loaded.');
+                    return;
+                }
+                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+                if (Object.keys(firebaseConfig).length === 0) {
+                    console.error('Firebase configuration is missing.');
+                    return;
+                }
+                app = firebase.initializeApp(firebaseConfig);
+                auth = firebase.getAuth(app);
+                db = firebase.getFirestore(app);
+            };
+            
+            const handleHashChange = () => {
+                const urlHash = window.location.hash.substring(1);
+                const [pageName, queryString] = urlHash.split('?');
+                
+                const params = {};
+                if (queryString) {
+                    queryString.split('&').forEach(param => {
+                        const [key, value] = param.split('=');
+                        params[key] = decodeURIComponent(value);
+                    });
+                }
+                renderPage(pageName || 'home', params);
+            };
+
+            const handleAuthUI = (user) => {
+                const authLinks = [document.getElementById('auth-link'), document.getElementById('mobile-auth-link')];
+                const myEventsLink = document.getElementById('my-events-link');
+                const mobileMyEventsLink = document.getElementById('mobile-my-events-link');
+                const superAdminLink = document.getElementById('super-admin-link');
+                const mobileSuperAdminLink = document.getElementById('mobile-super-admin-link');
+                if (user) {
+                    authLinks.forEach(link => {
+                        link.textContent = 'Logout';
+                        link.onclick = () => firebase.signOut(auth);
+                    });
+                    if (myEventsLink) myEventsLink.classList.remove('hidden');
+                    if (mobileMyEventsLink) mobileMyEventsLink.classList.remove('hidden');
+                    if (user.uid === SUPER_ADMIN_UID) {
+                        if (superAdminLink) superAdminLink.classList.remove('hidden');
+                        if (mobileSuperAdminLink) mobileSuperAdminLink.classList.remove('hidden');
+                    } else {
+                        if (superAdminLink) superAdminLink.classList.add('hidden');
+                        if (mobileSuperAdminLink) mobileSuperAdminLink.classList.add('hidden');
+                    }
+                } else {
+                    authLinks.forEach(link => {
+                        link.textContent = 'Login';
+                        link.onclick = async (e) => {
+                            e.preventDefault();
+                            const provider = new firebase.GoogleAuthProvider();
+                            await firebase.signInWithPopup(auth, provider);
+                        };
+                    });
+                    if (myEventsLink) myEventsLink.classList.add('hidden');
+                    if (mobileMyEventsLink) mobileMyEventsLink.classList.add('hidden');
+                    if (superAdminLink) superAdminLink.classList.add('hidden');
+                    if (mobileSuperAdminLink) mobileSuperAdminLink.classList.add('hidden');
+                }
+            };
+            
+            setupFirebase();
+            if (auth) {
+                firebase.onAuthStateChanged(auth, async (user) => {
+                    handleAuthUI(user);
+                    if (!user) {
+                         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                            try {
+                                await firebase.signInWithCustomToken(auth, __initial_auth_token);
+                            } catch (error) {
+                                console.error("Error signing in with custom token:", error);
+                                await firebase.signInAnonymously(auth);
+                            }
+                        } else {
+                            await firebase.signInAnonymously(auth);
+                        }
+                    }
+                    handleHashChange();
+                });
+            }
+
+            const handleLoginBtn = async (e) => {
+                e.preventDefault();
+                const provider = new firebase.GoogleAuthProvider();
+                try {
+                    await firebase.signInWithPopup(auth, provider);
+                } catch (error) {
+                    console.error("Error during sign-in:", error);
+                    alert("Failed to sign in. Please try again.");
+                }
+            };
+            
+            document.body.addEventListener('click', (e) => {
+                if (e.target.id === 'pandal-login-btn' || e.target.id === 'create-event-login-btn' || e.target.id === 'my-events-login-btn' || e.target.id === 'super-admin-login-btn') {
+                    handleLoginBtn(e);
+                }
+            });
+
+            window.addEventListener('hashchange', handleHashChange);
+            handleHashChange();
+
+            window.alert = function(message) {
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[100]';
+                modal.innerHTML = `
+                    <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full mx-4">
+                        <p class="text-lg text-gray-800">${message}</p>
+                        <div class="mt-4 text-right">
+                            <button class="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition">OK</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                modal.querySelector('button').addEventListener('click', () => {
+                    document.body.removeChild(modal);
+                });
+            };
+        });
+    </script>
+</body>
+</html>
